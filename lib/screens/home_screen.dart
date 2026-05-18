@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mealmate/models/meal.dart';
 
+import '../widgets/meal_card.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -66,19 +68,12 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('MealMate'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView.builder(
         itemCount: mockMeals.length,
         itemBuilder: (context, index) {
           final meal = mockMeals[index];
-          return ListTile(
-            leading: Image.network(meal.imageUrl),
-            title: Text(meal.name),
-            subtitle: Text(meal.category),
-            onTap: () {
-            },
-          );
+          return MealCard(meal: meal);
         },
       )
     );
