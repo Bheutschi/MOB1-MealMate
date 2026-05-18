@@ -10,7 +10,7 @@ class Meal {
   final List<String> ingredients;
   final List<String> measures;
 
-  Meal({
+  const Meal({
     required this.id,
     required this.name,
     required this.category,
