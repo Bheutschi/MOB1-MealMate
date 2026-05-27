@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mealmate/models/meal.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/favorites_provider.dart';
 import '../widgets/meal_card.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -63,11 +64,23 @@ class HomeScreen extends StatelessWidget {
         imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/rg9ze01763479093.jpg'
     )
   ];
+
   @override
   Widget build(BuildContext context) {
+    final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
       appBar: AppBar(
         title: Text('MealMate'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Badge(
+              label: Text('$favoritesCount'),
+              isLabelVisible: favoritesCount > 0,
+              child: const Icon(Icons.favorite),
+            ),
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: mockMeals.length,
@@ -75,8 +88,7 @@ class HomeScreen extends StatelessWidget {
           final meal = mockMeals[index];
           return MealCard(meal: meal);
         },
-      )
+      ),
     );
   }
-
 }
