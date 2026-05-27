@@ -20,4 +20,29 @@ class Meal {
     this.ingredients = const [],
     this.measures = const [],
   });
+
+  factory Meal.fromJson(Map<String, dynamic> json) {
+    final ingredients = <String>[];
+    final measures = <String>[];
+    for (var i = 1; i <= 20; i++) {
+      final ingredient = (json['strIngredient$i'] as String?)?.trim() ?? '';
+      final measure = (json['strMeasure$i'] as String?)?.trim() ?? '';
+      if (ingredient.isNotEmpty) {
+        ingredients.add(ingredient);
+        measures.add(measure);
+      }
+    }
+
+    return Meal(
+      id: json['idMeal'] as String? ?? '',
+      name: json['strMeal'] as String? ?? '',
+      imageUrl: json['strMealThumb'] as String? ?? '',
+      category: json['strCategory'] as String? ?? '',
+      area: json['strArea'] as String? ?? '',
+      instructions: json['strInstructions'] as String? ?? '',
+      youtubeUrl: json['strYoutube'] as String?,
+      ingredients: ingredients,
+      measures: measures,
+    );
+  }
 }
