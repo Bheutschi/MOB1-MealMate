@@ -51,4 +51,12 @@ class ApiService {
         .map((json) => Meal.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  Future<Meal?> getMealById(String id) async {
+    final body = await _get('lookup.php', {'i': id});
+    final list = (body['meals'] as List<dynamic>?) ?? [];
+    if (list.isEmpty) return null;
+    return Meal.fromJson(list.first as Map<String, dynamic>);
+  }
+
 }
