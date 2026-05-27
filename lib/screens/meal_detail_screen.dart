@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/meal.dart';
+import '../providers/favorites_provider.dart';
 
 class MealDetailScreen extends StatelessWidget {
   const MealDetailScreen({super.key, required this.meal});
@@ -8,9 +10,27 @@ class MealDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final favorites = context.watch<FavoritesProvider>();
+    final isFav = favorites.isFavorite(meal);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.name),
+        actions: [
+          IconButton(
+            icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
+            onPressed: () {
+            context.read<FavoritesProvider>().toggle(meal);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  isFav ? 'Retiré des favoris' : 'Ajouté aux favoris',
+                ),
+              ),
+            );
+          },
+          ),
+        ],
       ),
       body: ListView(
         children: [
