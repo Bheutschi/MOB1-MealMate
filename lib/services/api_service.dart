@@ -44,4 +44,11 @@ class ApiService {
         .map((json) => Meal.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+   Future<List<Meal>> searchMeals(String query) async {
+    final body = await _get('search.php', {'s': query});
+    final list = (body['meals'] as List<dynamic>?) ?? [];
+    return list
+        .map((json) => Meal.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 }
