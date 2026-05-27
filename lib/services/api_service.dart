@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/category.dart';
+import '../models/meal.dart';
 
 class ApiService {
   static const String _baseHost = 'www.themealdb.com';
@@ -33,6 +34,14 @@ class ApiService {
     final list = body['categories'] as List<dynamic>? ?? [];
     return list
         .map((json) => Category.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<Meal>> getMealsByCategory(String category) async {
+    final body = await _get('filter.php', {'c': category});
+    final list = (body['meals'] as List<dynamic>?) ?? [];
+    return list
+        .map((json) => Meal.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 }
