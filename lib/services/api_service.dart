@@ -59,4 +59,10 @@ class ApiService {
     return Meal.fromJson(list.first as Map<String, dynamic>);
   }
 
+  Future<Meal?> getRandomMeal() async {
+    final body = await _get('random.php');
+    final list = (body['meals'] as List<dynamic>?) ?? [];
+    if (list.isEmpty) return null;
+    return Meal.fromJson(list.first as Map<String, dynamic>);
+  }
 }
