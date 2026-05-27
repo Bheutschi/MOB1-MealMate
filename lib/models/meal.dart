@@ -3,7 +3,6 @@ class Meal {
   final String name;
   final String category;
   final String area;
-  final String country;
   final String instructions;
   final String imageUrl;
   final String? youtubeUrl;
@@ -15,7 +14,6 @@ class Meal {
     required this.name,
     required this.category,
     required this.area,
-    required this.country,
     required this.instructions,
     required this.imageUrl,
     this.youtubeUrl,
