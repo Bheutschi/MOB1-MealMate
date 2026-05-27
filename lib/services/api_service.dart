@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../models/category.dart';
 
 class ApiService {
   static const String _baseHost = 'www.themealdb.com';
@@ -25,5 +26,13 @@ class ApiService {
     } catch (e) {
       throw Exception('Erreur réseau : $e');
     }
+  }
+
+  Future<List<Category>> getCategories() async {
+    final body = await _get('categories.php');
+    final list = body['categories'] as List<dynamic>? ?? [];
+    return list
+        .map((json) => Category.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 }
