@@ -104,6 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
             'Découverte du jour',
             style: Theme.of(context).textTheme.titleLarge,
           ),
+          const SizedBox(height: 8),
+          _buildRandomMealCard(_randomMeal!),
+          const SizedBox(height: 24),
         ],
       ),
       body: ListView.builder(
