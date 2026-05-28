@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mealmate/models/meal.dart';
 import 'package:provider/provider.dart';
-
+import '../models/meal.dart';
+import '../models/category.dart';
 import '../providers/favorites_provider.dart';
-import '../widgets/meal_card.dart';
+import '../services/api_service.dart';
+import 'meal_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -168,6 +169,24 @@ class _HomeScreenState extends State<HomeScreen> {
       child: InkWell(
         onTap: () {
         },
+        child: Column(
+          children: [
+            Expanded(
+              child: Image.network(
+                category.thumbnail,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                category.name,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
