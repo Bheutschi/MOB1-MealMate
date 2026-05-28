@@ -64,6 +64,45 @@ class _HomeScreenState extends State<HomeScreen> {
               isLabelVisible: favoritesCount > 0,
               child: const Icon(Icons.favorite),
             ),
+            onPressed: () {
+            },
+          ),
+        ],
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48),
+            const SizedBox(height: 16),
+            Text(_errorMessage!),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _loadHomeData,
+              child: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (_randomMeal != null) ...[
+          Text(
+            'Découverte du jour',
+            style: Theme.of(context).textTheme.titleLarge,
           ),
         ],
       ),
