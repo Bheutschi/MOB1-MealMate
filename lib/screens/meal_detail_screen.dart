@@ -20,15 +20,18 @@ class MealDetailScreen extends StatelessWidget {
           IconButton(
             icon: Icon(isFav ? Icons.favorite : Icons.favorite_border),
             onPressed: () {
-            context.read<FavoritesProvider>().toggle(meal);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  isFav ? 'Retiré des favoris' : 'Ajouté aux favoris',
+              final messenger = ScaffoldMessenger.of(context);
+              context.read<FavoritesProvider>().toggle(meal);
+              messenger.removeCurrentSnackBar();
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isFav ? 'Retiré des favoris' : 'Ajouté aux favoris',
+                  ),
+                  duration: const Duration(seconds: 1),
                 ),
-              ),
-            );
-          },
+              );
+            },
           ),
         ],
       ),
