@@ -108,12 +108,65 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildRandomMealCard(_randomMeal!),
           const SizedBox(height: 24),
         ],
+        Text(
+          'Catégories',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: _categories.length,
+          itemBuilder: (context, index) =>
+              _buildCategoryCard(_categories[index]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRandomMealCard(Meal meal) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => MealDetailScreen(meal: meal),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              meal.imageUrl,
+              height: 180,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                meal.name,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
       ),
-      body: ListView.builder(
-        itemCount: mockMeals.length,
-        itemBuilder: (context, index) {
-          final meal = mockMeals[index];
-          return MealCard(meal: meal);
+    );
+  }
+
+  Widget _buildCategoryCard(Category category) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
         },
       ),
     );
