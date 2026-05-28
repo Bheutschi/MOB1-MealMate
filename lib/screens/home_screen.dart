@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../providers/favorites_provider.dart';
 import '../widgets/meal_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
