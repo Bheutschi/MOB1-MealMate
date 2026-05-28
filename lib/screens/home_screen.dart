@@ -56,10 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
       appBar: AppBar(
-        title: Text('MealMate'),
+        title: const Text('MealMate'),
         actions: [
           IconButton(
-            onPressed: () {},
             icon: Badge(
               label: Text('$favoritesCount'),
               isLabelVisible: favoritesCount > 0,
