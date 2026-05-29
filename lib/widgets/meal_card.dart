@@ -58,7 +58,7 @@ class MealCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${meal.category} | ${meal.area}',
+                    '${meal.category} | ${meal.country}',
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
