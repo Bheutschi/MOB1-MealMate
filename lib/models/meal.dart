@@ -2,7 +2,7 @@ class Meal {
   final String id;
   final String name;
   final String category;
-  final String area;
+  final String country;
   final String instructions;
   final String imageUrl;
   final String? youtubeUrl;
@@ -13,7 +13,7 @@ class Meal {
     required this.id,
     required this.name,
     required this.category,
-    required this.area,
+    required this.country,
     required this.instructions,
     required this.imageUrl,
     this.youtubeUrl,
@@ -38,7 +38,7 @@ class Meal {
       name: json['strMeal'] as String? ?? '',
       imageUrl: json['strMealThumb'] as String? ?? '',
       category: json['strCategory'] as String? ?? '',
-      area: json['strArea'] as String? ?? '',
+      country: json['strCountry'] as String? ?? '',
       instructions: json['strInstructions'] as String? ?? '',
       youtubeUrl: json['strYoutube'] as String?,
       ingredients: ingredients,

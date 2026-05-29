@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 
@@ -53,11 +54,13 @@ class MealDetailScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                Row(
+                Wrap(
+                  spacing: 8,
                   children: [
-                    Chip(label: Text(meal.category)),
-                    const SizedBox(width: 8),
-                    Chip(label: Text(meal.area)),
+                    if (meal.category.isNotEmpty)
+                      Chip(label: Text(meal.category)),
+                    if (meal.country.isNotEmpty)
+                      Chip(label: Text(meal.country)),
                   ],
                 ),
                 const SizedBox(height: 16),
