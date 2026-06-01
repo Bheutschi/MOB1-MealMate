@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/meal.dart';
 import '../models/category.dart';
+import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 import '../services/api_service.dart';
+import 'category_screen.dart';
 import 'meal_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -46,7 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Impossible de charger les données. Vérifie ta connexion.';
+        _errorMessage =
+            'Impossible de charger les données. Vérifie ta connexion.';
         _isLoading = false;
       });
     }
@@ -65,8 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               isLabelVisible: favoritesCount > 0,
               child: const Icon(Icons.favorite),
             ),
-            onPressed: () {
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -109,10 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildRandomMealCard(_randomMeal!),
           const SizedBox(height: 24),
         ],
-        Text(
-          'Catégories',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('Catégories', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         GridView.builder(
           shrinkWrap: true,
@@ -137,9 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: InkWell(
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => MealDetailScreen(meal: meal),
-          ),
+          MaterialPageRoute(builder: (_) => MealDetailScreen(meal: meal)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CategoryScreen(category: category),
+            ),
+          );
         },
         child: Column(
           children: [
