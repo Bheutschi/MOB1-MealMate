@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mealmate/screens/favorites_screen.dart';
 import 'package:mealmate/screens/search_results_screen.dart';
+import 'package:mealmate/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
+
 import '../models/category.dart';
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
@@ -92,6 +94,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(builder: (_) => const FavoritesScreen()),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ],
       ),
@@ -226,10 +235,7 @@ class _MealSearchDelegate extends SearchDelegate<String?> {
   List<Widget> buildActions(BuildContext context) {
     return [
       if (query.isNotEmpty)
-        IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: () => query = '',
-        ),
+        IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
     ];
   }
 
