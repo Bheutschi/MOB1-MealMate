@@ -8,6 +8,7 @@ import '../models/category.dart';
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 import '../services/api_service.dart';
+import '../services/storage_service.dart';
 import 'category_screen.dart';
 import 'meal_detail_screen.dart';
 
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _api = ApiService();
+  final StorageService _storage = StorageService();
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -39,14 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final results = await Future.wait([
-        _api.getCategories(),
-        _api.getRandomMeal(),
-      ]);
+      Meal? discovery = await _storage.loadDiscoveryOfTheDay();
+
+      if (discovery == null) {
+        discovery = await _api.getRandomMeal();
+        if (discovery != null) {
+          await _storage.saveDiscoveryOfTheDay(discovery);
+        }
+      }
+      final categories = await _api.getCategories();
 
       setState(() {
-        _categories = results[0] as List<Category>;
-        _randomMeal = results[1] as Meal?;
+        _categories = categories;
+        _randomMeal = discovery;
         _isLoading = false;
       });
     } catch (e) {
