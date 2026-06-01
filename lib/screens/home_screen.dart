@@ -1,93 +1,263 @@
 import 'package:flutter/material.dart';
-import 'package:mealmate/models/meal.dart';
+import 'package:mealmate/screens/favorites_screen.dart';
+import 'package:mealmate/screens/search_results_screen.dart';
 import 'package:provider/provider.dart';
-
+import '../models/category.dart';
+import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
-import '../widgets/meal_card.dart';
+import '../services/api_service.dart';
+import 'category_screen.dart';
+import 'meal_detail_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  final List<Meal> mockMeals = const [
-    Meal(
-        id: '1',
-        name: 'Spaghetti Carbonara',
-        category: 'Vegetarian',
-        area: 'Italian',
-        country: 'Italy',
-        instructions: 'Bring a large pot of water to a boil. Add kosher salt to the boiling water, then add the pasta. Cook according to the package instructions, about 9 minutes.\r\nIn a large skillet over medium-high heat, add the olive oil and heat until the oil starts to shimmer. Add the garlic and cook, stirring, until fragrant, 1 to 2 minutes. Add the chopped tomatoes, red chile flakes, Italian seasoning and salt and pepper to taste. Bring to a boil and cook for 5 minutes. Remove from the heat and add the chopped basil.\r\nDrain the pasta and add it to the sauce. Garnish with Parmigiano-Reggiano flakes and more basil and serve warm.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/ustsqw1468250014.jpg'
-    ),
-    Meal(
-        id: '2',
-        name: 'Chicken Alfredo',
-        category: 'Non-Vegetarian',
-        area: 'Italian',
-        country: 'Italy',
-        instructions: 'Cook the fettuccine according to the package instructions. Drain and set aside.\r\nIn a large skillet, melt the butter over medium heat. Add the garlic and cook until fragrant, about 1 minute. Add the heavy cream and bring to a simmer. Reduce the heat to low and stir in the Parmesan cheese until melted and smooth. Season with salt and pepper to taste.\r\nAdd the cooked fettuccine to the skillet and toss to coat in the sauce. Serve immediately, garnished with additional Parmesan cheese if desired.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/sypxpx1515365095.jpg'
-    ),
-    Meal(
-        id: '3',
-        name: 'Vietnamese-style veggie hotpot',
-        category: 'Vegetarian',
-        area: 'Vietnamese',
-        country: 'Vietnam',
-        instructions: 'step 1\r\nHeat the oil in a medium-size, lidded saucepan. Add the ginger and garlic, then stir-fry for about 5 mins. Add the squash, soy sauce, sugar and stock. Cover, then simmer for 10 mins. Remove the lid, add the green beans, then cook for 3 mins more until the squash and beans are tender. Stir the spring onions through at the last minute, then sprinkle with coriander and serve with rice.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/4uje7l1763762276.jpg'
-    ),
-    Meal(
-        id: '4',
-        name: 'Beef Tacos',
-        category: 'Non-Vegetarian',
-        area: 'Mexican',
-        country: 'Mexico',
-        instructions: 'In a large skillet, cook the ground beef over medium heat until browned. Drain any excess fat.\r\nAdd the taco seasoning and water to the skillet and stir to combine. Simmer for 5 minutes until the sauce has thickened.\r\nWarm the taco shells according to the package instructions. Fill each shell with the seasoned beef and top with shredded lettuce, diced tomatoes, shredded cheese, and any other desired toppings.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/qtuwxu1468233098.jpg'
-    ),
-    Meal(
-        id: '5',
-        name: 'Margherita Pizza',
-        category: 'Vegetarian',
-        area: 'Italian',
-        country: 'Italy',
-        instructions: 'Preheat the oven to 475°F (245°C). Roll out the pizza dough on a floured surface to your desired thickness.\r\nTransfer the rolled-out dough to a pizza stone or baking sheet. Spread the tomato sauce evenly over the dough, leaving a small border around the edges. Sprinkle the shredded mozzarella cheese over the sauce and top with fresh basil leaves.\r\nBake in the preheated oven for 10-12 minutes, or until the crust is golden and the cheese is bubbly and slightly browned. Remove from the oven and let cool for a few minutes before slicing and serving.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/x0lk931587671540.jpg'
-    ),
-    Meal(
-        id: '6',
-        name: 'Pad Thai',
-        category: 'Non-Vegetarian',
-        area: 'Thai',
-        country: 'Thailand',
-        instructions: 'Cook the rice noodles according to the package instructions. Drain and set aside.\r\nIn a large skillet or wok, heat the vegetable oil over medium-high heat. Add the garlic and cook until fragrant, about 1 minute. Add the shrimp and cook until pink and cooked through, about 2-3 minutes. Remove the shrimp from the skillet and set aside.\r\nIn the same skillet, add the beaten eggs and scramble until cooked through. Add the cooked noodles, tamarind paste, fish sauce, sugar, and red pepper flakes. Toss to combine and cook for an additional 2-3 minutes until heated through.\r\nReturn the cooked shrimp to the skillet and toss to combine. Serve immediately, garnished with chopped peanuts and fresh lime wedges.',
-        imageUrl: 'https:\/\/www.themealdb.com\/images\/media\/meals\/rg9ze01763479093.jpg'
-    )
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ApiService _api = ApiService();
+
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<Category> _categories = [];
+  Meal? _randomMeal;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHomeData();
+  }
+
+  Future<void> _loadHomeData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final results = await Future.wait([
+        _api.getCategories(),
+        _api.getRandomMeal(),
+      ]);
+
+      setState(() {
+        _categories = results[0] as List<Category>;
+        _randomMeal = results[1] as Meal?;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage =
+            'Impossible de charger les données. Vérifie ta connexion.';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
       appBar: AppBar(
-        title: Text('MealMate'),
+        title: const Text('MealMate'),
         actions: [
           IconButton(
-            onPressed: () {},
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              final query = await showSearch<String?>(
+                context: context,
+                delegate: _MealSearchDelegate(),
+              );
+              if (query != null && query.isNotEmpty && context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SearchResultsScreen(query: query),
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
             icon: Badge(
               label: Text('$favoritesCount'),
               isLabelVisible: favoritesCount > 0,
               child: const Icon(Icons.favorite),
             ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+              );
+            },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: mockMeals.length,
-        itemBuilder: (context, index) {
-          final meal = mockMeals[index];
-          return MealCard(meal: meal);
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48),
+            const SizedBox(height: 16),
+            Text(_errorMessage!),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _loadHomeData,
+              child: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        if (_randomMeal != null) ...[
+          Text(
+            'Découverte du jour',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          _buildRandomMealCard(_randomMeal!),
+          const SizedBox(height: 24),
+        ],
+        Text('Catégories', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemCount: _categories.length,
+          itemBuilder: (context, index) =>
+              _buildCategoryCard(_categories[index]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRandomMealCard(Meal meal) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MealDetailScreen(meal: meal)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              meal.imageUrl,
+              height: 180,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                meal.name,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryCard(Category category) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CategoryScreen(category: category),
+            ),
+          );
         },
+        child: Column(
+          children: [
+            Expanded(
+              child: Image.network(
+                category.thumbnail,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                category.name,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MealSearchDelegate extends SearchDelegate<String?> {
+  @override
+  String get searchFieldLabel => 'Rechercher une recette...';
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => query = '',
+        ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, null),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (query.isNotEmpty) close(context, query);
+    });
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          "Tape le nom d'une recette puis valide.",
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
