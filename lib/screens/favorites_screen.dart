@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/meal.dart';
+import '../providers/favorites_provider.dart';
+import 'meal_detail_screen.dart';
+
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final favorites = context.watch<FavoritesProvider>().favorites;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mes favoris')),
+      body: favorites.isEmpty
+          ? _buildEmptyState(context)
+          : _buildList(context, favorites),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite_border,
+            size: 64,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Aucun favori pour l'instant",
+            style: textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Découvrir des recettes'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<Meal> favorites) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ListView.builder(
+      itemCount: favorites.length,
+      itemBuilder: (context, index) {
+        final meal = favorites[index];
+
+        final swipeBg = Container(
+          color: colorScheme.errorContainer,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Icon(
+            Icons.delete,
+            color: colorScheme.onErrorContainer,
+          ),
+        );
+
+        return Dismissible(
+          key: ValueKey(meal.id),
+          direction: DismissDirection.horizontal,
+          background: Align(alignment: Alignment.centerLeft, child: swipeBg),
+          secondaryBackground:
+              Align(alignment: Alignment.centerRight, child: swipeBg),
+          onDismissed: (_) {
+            final messenger = ScaffoldMessenger.of(context);
+            context.read<FavoritesProvider>().toggle(meal);
+            messenger.removeCurrentSnackBar();
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text('${meal.name} retiré des favoris'),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          },
+          child: ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                meal.imageUrl,
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+              ),
+            ),
+            title: Text(meal.name),
+            subtitle: Text('${meal.category} | ${meal.country}'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MealDetailScreen(meal: meal),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
