@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mealmate/screens/favorites_screen.dart';
 import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../models/meal.dart';
@@ -67,7 +68,12 @@ class _HomeScreenState extends State<HomeScreen> {
               isLabelVisible: favoritesCount > 0,
               child: const Icon(Icons.favorite),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+              );
+            },
           ),
         ],
       ),
