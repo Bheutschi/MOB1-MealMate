@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../models/meal.dart';
 import '../screens/meal_detail_screen.dart';
 
@@ -14,59 +13,37 @@ class MealCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MealDetailScreen(meal: meal),
-            ),
-          );
-        },
-        child: Row(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MealDetailScreen(meal: meal)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Image.network(
-              meal.imageUrl,
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 120,
-                  height: 120,
+            Expanded(
+              child: Image.network(
+                meal.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => Container(
                   color: colorScheme.surfaceContainerHighest,
                   child: Icon(
                     Icons.restaurant,
                     color: colorScheme.onSurfaceVariant,
                   ),
-                );
-              },
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    meal.name,
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${meal.category} | ${meal.country}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(width: 16),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                meal.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.titleSmall,
+              ),
+            ),
           ],
         ),
       ),
