@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mealmate/screens/favorites_screen.dart';
+import 'package:mealmate/screens/search_results_screen.dart';
 import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../models/meal.dart';
@@ -62,6 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('MealMate'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () async {
+              final query = await showSearch<String?>(
+                context: context,
+                delegate: _MealSearchDelegate(),
+              );
+              if (query != null && query.isNotEmpty && context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SearchResultsScreen(query: query),
+                  ),
+                );
+              }
+            },
+          ),
           IconButton(
             icon: Badge(
               label: Text('$favoritesCount'),
@@ -194,6 +212,51 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MealSearchDelegate extends SearchDelegate<String?> {
+  @override
+  String get searchFieldLabel => 'Rechercher une recette...';
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => query = '',
+        ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () => close(context, null),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (query.isNotEmpty) close(context, query);
+    });
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          "Tape le nom d'une recette puis valide.",
+          textAlign: TextAlign.center,
         ),
       ),
     );
