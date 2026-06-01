@@ -45,4 +45,16 @@ class Meal {
       measures: measures,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'idMeal': id,
+      'strMeal': name,
+      'strMealThumb': imageUrl,
+      'strCategory': category,
+      'strArea': country,
+      'strInstructions': instructions,
+      'strYoutube': youtubeUrl,
+    };
+  }
 }
