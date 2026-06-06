@@ -22,7 +22,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _api = ApiService();
   final StorageService _storage = StorageService();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
+  bool _isSearching = false;
   bool _isLoading = true;
   String? _errorMessage;
   List<Category> _categories = [];
@@ -32,6 +35,35 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadHomeData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _startSearch() {
+    setState(() => _isSearching = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchFocusNode.requestFocus();
+    });
+  }
+
+  void _stopSearch() {
+    _searchController.clear();
+    FocusScope.of(context).unfocus();
+    setState(() => _isSearching = false);
+  }
+
+  void _submitSearch(String query) {
+    if (query.isEmpty) return;
+    _stopSearch();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => SearchResultsScreen(query: query)),
+    );
   }
 
   Future<void> _loadHomeData() async {
@@ -69,49 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MealMate'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () async {
-              final query = await showSearch<String?>(
-                context: context,
-                delegate: _MealSearchDelegate(),
-              );
-              if (query != null && query.isNotEmpty && context.mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => SearchResultsScreen(query: query),
-                  ),
-                );
-              }
-            },
-          ),
-          IconButton(
-            icon: Badge(
-              label: Text('$favoritesCount'),
-              isLabelVisible: favoritesCount > 0,
-              child: const Icon(Icons.favorite),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SettingsScreen()),
-            ),
-          ),
-        ],
-      ),
       body: _buildBody(),
+      appBar: _isSearching ? _buildSearchAppBar() : _buildNormalAppBar(),
     );
   }
 
@@ -232,46 +223,51 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-class _MealSearchDelegate extends SearchDelegate<String?> {
-  @override
-  String get searchFieldLabel => 'Rechercher une recette...';
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      if (query.isNotEmpty)
-        IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () => close(context, null),
+  AppBar _buildSearchAppBar() {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: _stopSearch,
+      ),
+      title: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        decoration: const InputDecoration(
+          hintText: 'Rechercher une recette...',
+          border: InputBorder.none,
+        ),
+        onSubmitted: _submitSearch,
+        textInputAction: TextInputAction.search,
+      ),
     );
   }
 
-  @override
-  Widget buildResults(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (query.isNotEmpty) close(context, query);
-    });
-    return const SizedBox.shrink();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(
-          "Tape le nom d'une recette puis valide.",
-          textAlign: TextAlign.center,
+  AppBar _buildNormalAppBar() {
+    final favoritesCount = context.watch<FavoritesProvider>().count;
+    return AppBar(
+      title: const Text('MealMate'),
+      actions: [
+        IconButton(icon: const Icon(Icons.search), onPressed: _startSearch),
+        IconButton(
+          icon: Badge(
+            label: Text('$favoritesCount'),
+            isLabelVisible: favoritesCount > 0,
+            child: const Icon(Icons.favorite),
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+          ),
         ),
-      ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SettingsScreen()),
+          ),
+        ),
+      ],
     );
   }
 }
