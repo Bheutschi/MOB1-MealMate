@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mealmate/screens/favorites_screen.dart';
 import 'package:mealmate/screens/search_results_screen.dart';
@@ -30,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _errorMessage;
   List<Category> _categories = [];
   Meal? _randomMeal;
+  List<Meal> _searchSuggestions = [];
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -41,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -53,6 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _stopSearch() {
     _searchController.clear();
+    _searchSuggestions = [];
+    _searchDebounce?.cancel();
     FocusScope.of(context).unfocus();
     setState(() => _isSearching = false);
   }
@@ -64,6 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => SearchResultsScreen(query: query)),
     );
+  }
+
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    if (query.trim().isEmpty) {
+      setState(() => _searchSuggestions = []);
+      return;
+    }
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () async {
+      try {
+        final meals = await _api.searchMeals(query);
+        if (mounted && _isSearching) {
+          setState(() => _searchSuggestions = meals);
+        }
+      } catch (_) {}
+    });
   }
 
   Future<void> _loadHomeData() async {
@@ -101,8 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
-      body: _buildBody(),
       appBar: _isSearching ? _buildSearchAppBar() : _buildNormalAppBar(),
+      body: _isSearching ? _buildSearchSuggestions() : _buildBody(),
     );
   }
 
@@ -291,6 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
           hintText: 'Rechercher une recette...',
           border: InputBorder.none,
         ),
+        onChanged: _onSearchChanged,
         onSubmitted: _submitSearch,
         textInputAction: TextInputAction.search,
       ),
