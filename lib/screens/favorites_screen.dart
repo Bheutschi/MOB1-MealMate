@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 import 'meal_detail_screen.dart';
@@ -12,7 +13,7 @@ class FavoritesScreen extends StatelessWidget {
     final provider = context.watch<FavoritesProvider>();
     final favorites = provider.favorites;
 
-    if(provider.isLoading){
+    if (provider.isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Mes favoris')),
         body: const Center(child: CircularProgressIndicator()),
@@ -41,10 +42,7 @@ class FavoritesScreen extends StatelessWidget {
             color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text(
-            "Aucun favori pour l'instant",
-            style: textTheme.titleMedium,
-          ),
+          Text("Aucun favori pour l'instant", style: textTheme.titleMedium),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => Navigator.pop(context),
@@ -66,18 +64,17 @@ class FavoritesScreen extends StatelessWidget {
         final swipeBg = Container(
           color: colorScheme.errorContainer,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Icon(
-            Icons.delete,
-            color: colorScheme.onErrorContainer,
-          ),
+          child: Icon(Icons.delete, color: colorScheme.onErrorContainer),
         );
 
         return Dismissible(
           key: ValueKey(meal.id),
           direction: DismissDirection.horizontal,
           background: Align(alignment: Alignment.centerLeft, child: swipeBg),
-          secondaryBackground:
-              Align(alignment: Alignment.centerRight, child: swipeBg),
+          secondaryBackground: Align(
+            alignment: Alignment.centerRight,
+            child: swipeBg,
+          ),
           onDismissed: (_) {
             final messenger = ScaffoldMessenger.of(context);
             context.read<FavoritesProvider>().toggle(meal);
@@ -101,11 +98,27 @@ class FavoritesScreen extends StatelessWidget {
             ),
             title: Text(meal.name),
             subtitle: Text('${meal.category} | ${meal.country}'),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.favorite,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              tooltip: 'Retirer des favoris',
+              onPressed: () {
+                final messenger = ScaffoldMessenger.of(context);
+                context.read<FavoritesProvider>().toggle(meal);
+                messenger.removeCurrentSnackBar();
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('${meal.name} retiré des favoris'),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+            ),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => MealDetailScreen(meal: meal),
-              ),
+              MaterialPageRoute(builder: (_) => MealDetailScreen(meal: meal)),
             ),
           ),
         );
