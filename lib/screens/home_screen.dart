@@ -224,6 +224,60 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildSearchSuggestions() {
+    if (_searchController.text.trim().isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            "Commence à taper pour voir des suggestions.",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    if (_searchSuggestions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            "Aucune recette trouvée pour \"${_searchController.text}\".",
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: _searchSuggestions.length,
+      itemBuilder: (context, index) {
+        final meal = _searchSuggestions[index];
+        return ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              meal.imageUrl,
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+            ),
+          ),
+          title: Text(meal.name),
+          subtitle: Text('${meal.category} | ${meal.country}'),
+          onTap: () {
+            _stopSearch();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => MealDetailScreen(meal: meal)),
+            );
+          },
+        );
+      },
+    );
+  }
+
   AppBar _buildSearchAppBar() {
     return AppBar(
       leading: IconButton(
