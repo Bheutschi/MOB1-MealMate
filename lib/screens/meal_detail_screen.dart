@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
@@ -127,6 +128,17 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             if (meal.country.isNotEmpty) Chip(label: Text(meal.country)),
           ],
         ),
+        if (meal.youtubeUrl != null && meal.youtubeUrl!.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => _openYoutube(meal.youtubeUrl!),
+              icon: const Icon(Icons.play_circle_outline),
+              label: const Text('Voir la vidéo'),
+            ),
+          ),
+        ],
         if (meal.ingredients.isNotEmpty) ...[
           const SizedBox(height: 24),
           _buildSectionHeader(
@@ -150,6 +162,29 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         const SizedBox(height: 24),
       ],
     );
+  }
+
+  Future<void> _openYoutube(String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final uri = Uri.parse(url);
+
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && mounted) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text("Impossible d'ouvrir la vidéo.")),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text("Impossible d'ouvrir la vidéo.")),
+        );
+      }
+    }
   }
 
   Widget _buildSectionHeader(
