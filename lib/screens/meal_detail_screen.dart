@@ -240,10 +240,22 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   List<Widget> _buildSteps(BuildContext context, String instructions) {
     final colorScheme = Theme.of(context).colorScheme;
+    final stepHeaderPattern = RegExp(
+      r'^step\s*\d+\s*[:.]?\s*$',
+      caseSensitive: false,
+    );
+
+    final junkPattern = RegExp(
+      r'(watch after ad|budget .* ideas|subscribe|click here|watch the video)',
+      caseSensitive: false,
+    );
+
     final steps = instructions
         .split(RegExp(r'\r?\n+'))
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
+        .where((s) => !stepHeaderPattern.hasMatch(s))
+        .where((s) => !junkPattern.hasMatch(s))
         .toList();
 
     return List.generate(steps.length, (i) {
