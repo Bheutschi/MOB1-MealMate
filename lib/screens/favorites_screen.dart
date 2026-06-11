@@ -34,31 +34,6 @@ class FavoritesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.favorite_border,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text("Aucun favori pour l'instant", style: textTheme.titleMedium),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Découvrir des recettes'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildList(BuildContext context, List<Meal> favorites) {
     final colorScheme = Theme.of(context).colorScheme;
 
