@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/meal.dart';
 import '../services/api_service.dart';
+import '../widgets/loading_indicator.dart';
 import '../widgets/meal_card.dart';
 
 class CategoryScreen extends StatefulWidget {
@@ -57,27 +58,22 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const LoadingIndicator();
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: _loadMeals, child: const Text('Réessayer')),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.error_outline,
+        message: _errorMessage!,
+        actionLabel: 'Réessayer',
+        onActionPressed: _loadMeals,
       );
     }
 
     if (_meals.isEmpty) {
-      return const Center(child: Text('Aucune recette dans cette catégorie.'));
+      return const EmptyState(
+        icon: Icons.no_food_outlined,
+        message: 'Aucune recette dans cette catégorie.',
+      );
     }
 
     return GridView.builder(
