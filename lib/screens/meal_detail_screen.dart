@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 import '../services/api_service.dart';
+import '../widgets/loading_indicator.dart';
 
 class MealDetailScreen extends StatefulWidget {
   const MealDetailScreen({super.key, required this.meal});
@@ -82,25 +83,14 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   }
 
   Widget _buildBody(Meal meal) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const LoadingIndicator();
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _loadFullMeal,
-              child: const Text('Réessayer'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.error_outline,
+        message: _errorMessage!,
+        actionLabel: 'Réessayer',
+        onActionPressed: _loadFullMeal,
       );
     }
 
