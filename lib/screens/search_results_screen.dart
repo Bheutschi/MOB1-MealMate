@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../models/meal.dart';
 import '../services/api_service.dart';
+import '../widgets/loading_indicator.dart';
 import '../widgets/meal_card.dart';
 
 class SearchResultsScreen extends StatefulWidget {
@@ -55,51 +57,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const LoadingIndicator();
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _runSearch,
-              child: const Text('Réessayer'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.error_outline,
+        message: _errorMessage!,
+        actionLabel: 'Réessayer',
+        onActionPressed: _runSearch,
       );
     }
 
     if (_meals.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Aucune recette trouvée pour "${widget.query}".',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Retour'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.search_off,
+        message: 'Aucune recette trouvée pour "${widget.query}".',
+        actionLabel: 'Retour',
+        onActionPressed: () => Navigator.pop(context),
       );
     }
 
