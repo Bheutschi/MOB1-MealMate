@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
+import '../widgets/loading_indicator.dart';
 import 'meal_detail_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
@@ -16,40 +17,20 @@ class FavoritesScreen extends StatelessWidget {
     if (provider.isLoading) {
       return Scaffold(
         appBar: AppBar(title: const Text('Mes favoris')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const LoadingIndicator(),
       );
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mes favoris')),
       body: favorites.isEmpty
-          ? _buildEmptyState(context)
+          ? EmptyState(
+              icon: Icons.favorite_border,
+              message: "Aucun favori pour l'instant",
+              actionLabel: 'Découvrir des recettes',
+              onActionPressed: () => Navigator.pop(context),
+            )
           : _buildList(context, favorites),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.favorite_border,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text("Aucun favori pour l'instant", style: textTheme.titleMedium),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Découvrir des recettes'),
-          ),
-        ],
-      ),
     );
   }
 

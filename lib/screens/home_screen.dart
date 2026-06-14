@@ -11,6 +11,7 @@ import '../models/meal.dart';
 import '../providers/favorites_provider.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../widgets/loading_indicator.dart';
 import 'category_screen.dart';
 import 'meal_detail_screen.dart';
 
@@ -122,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final favoritesCount = context.watch<FavoritesProvider>().count;
     return Scaffold(
       appBar: _isSearching ? _buildSearchAppBar() : _buildNormalAppBar(),
       body: _isSearching ? _buildSearchSuggestions() : _buildBody(),
@@ -130,25 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_isLoading) return const LoadingIndicator();
 
     if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _loadHomeData,
-              child: const Text('Réessayer'),
-            ),
-          ],
-        ),
+      return EmptyState(
+        icon: Icons.error_outline,
+        message: _errorMessage!,
+        actionLabel: 'Réessayer',
+        onActionPressed: _loadHomeData,
       );
     }
 
@@ -249,27 +238,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSearchSuggestions() {
     if (_searchController.text.trim().isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(
-            "Commence à taper pour voir des suggestions.",
-            textAlign: TextAlign.center,
-          ),
-        ),
+      return const EmptyState(
+        icon: Icons.search,
+        message: 'Commence à taper pour voir des suggestions.',
       );
     }
 
     if (_searchSuggestions.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            "Aucune recette trouvée pour \"${_searchController.text}\".",
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ),
+      return EmptyState(
+        icon: Icons.search_off,
+        message: 'Aucune recette trouvée pour "${_searchController.text}".',
       );
     }
 
