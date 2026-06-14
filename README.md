@@ -57,8 +57,8 @@ lib/
 
 ## Score SUS
 
-Test SUS réalisé auprès de **1** testeur.
-Score moyen obtenu : **95** / 100.
+Test SUS réalisé auprès de **3** testeur.
+Score moyen obtenu : **94** / 100.
 
 ## Outils d'IA utilisés
 
